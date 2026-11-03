@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ShakeTag</string>
+    <string name="add_sensor_title">Add Sensor</string>
 </resources>
