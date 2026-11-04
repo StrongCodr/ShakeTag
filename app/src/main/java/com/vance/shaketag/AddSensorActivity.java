@@ -3,6 +3,8 @@ package com.vance.shaketag;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+
 import com.google.android.material.appbar.MaterialToolbar;
 
 import androidx.activity.EdgeToEdge;
@@ -12,6 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class AddSensorActivity extends AppCompatActivity {
+    private boolean isScanning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,5 +38,19 @@ public class AddSensorActivity extends AppCompatActivity {
 
     public void goBack(View view) {
         finish();
+    }
+    public void startOrStopScan(View view) {
+        Button scanButton = (Button) view;
+        isScanning = !isScanning;
+
+        if (isScanning) {
+            scanButton.setText(R.string.stop_scan);
+        } else {
+            scanButton.setText(R.string.start_scan);
+        }
+    }
+
+    public void connectSensors(View view) {
+        // Connecting the ticked sensors comes later
     }
 }
