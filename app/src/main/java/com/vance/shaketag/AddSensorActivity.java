@@ -3,6 +3,7 @@ package com.vance.shaketag;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,17 @@ public class AddSensorActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        setUpToolbar();
+    }
+    private void setUpToolbar() {
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.add_sensor_title);
+        toolbar.setNavigationIcon(R.drawable.outline_arrow_back_24);
+        toolbar.setNavigationIconTint(Color.WHITE);
+        toolbar.setNavigationOnClickListener(this::goBack);
+    }
 
+    public void goBack(View view) {
+        finish();
     }
 }
