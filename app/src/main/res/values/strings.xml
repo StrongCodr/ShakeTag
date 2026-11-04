@@ -3,6 +3,8 @@
     <string name="add_sensor_title">Add Sensor</string>
     <string name="start_scan">Start Scan</string>
     <string name="stop_scan">Stop Scan</string>
-    <string name="connect">Connect</string>\
+    <string name="connect">Connect</string>
     <string name="log_label">Log:</string>
+    <string name="shake_mode_off">Shake Mode (Off)</string>
+    <string name="shake_mode_on">Shake Mode (On)</string>
 </resources>
