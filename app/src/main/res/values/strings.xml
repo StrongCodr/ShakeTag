@@ -7,4 +7,5 @@
     <string name="log_label">Log:</string>
     <string name="shake_mode_off">Shake Mode (Off)</string>
     <string name="shake_mode_on">Shake Mode (On)</string>
+    <string name="no_sensors">No sensors registered...</string>
 </resources>

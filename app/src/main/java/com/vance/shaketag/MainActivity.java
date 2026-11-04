@@ -4,15 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.view.View;
+import com.wit.witsdk.Bluetooth.WitBluetoothManager;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
     private boolean isShakeModeOn = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +27,17 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        askPermissions();
 
+    }
+    private void askPermissions() {
+        // Ask for Bluetooth and location as soon as the app opens
+        if (!WitBluetoothManager.checkPermissions(this)) {
+            WitBluetoothManager.requestPermissions(this);
         }
+    }
+
+
     public void openAddSensorScreen(View view) {
         Intent goToAddSensor = new Intent(this, AddSensorActivity.class);
         startActivity(goToAddSensor);

@@ -40,4 +40,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <TextView
+        android:id="@+id/noSensorsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="650dp"
+        android:text="@string/no_sensors"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/shakeButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.068"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
