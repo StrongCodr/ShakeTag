@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -15,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class AddSensorActivity extends AppCompatActivity {
     private boolean isScanning = false;
+    private TextView logText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +29,7 @@ public class AddSensorActivity extends AppCompatActivity {
             return insets;
         });
         setUpToolbar();
+        logText = findViewById(R.id.logText);
     }
     private void setUpToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -45,12 +48,18 @@ public class AddSensorActivity extends AppCompatActivity {
 
         if (isScanning) {
             scanButton.setText(R.string.stop_scan);
+            addToLog("Scanning for WitMotion sensors...");
         } else {
             scanButton.setText(R.string.start_scan);
+            addToLog("Scan stopped.");
         }
     }
 
     public void connectSensors(View view) {
+        addToLog("Connect pressed.");
         // Connecting the ticked sensors comes later
+    }
+    private void addToLog(String message) {
+        logText.append(message + "\n");
     }
 }
