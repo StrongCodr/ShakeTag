@@ -4,17 +4,23 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.os.Handler;
 import android.os.Looper;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.wit.witsdk.Bluetooth.WitBluetoothManager;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import com.wit.witsdk.Device.DeviceManager;
 import com.wit.witsdk.Device.Interface.DeviceFindListener;
 import android.text.method.ScrollingMovementMethod;
+import java.util.ArrayList;
+import android.widget.LinearLayout;
+
 
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -30,7 +36,8 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     private final Handler scanHandler = new Handler(Looper.getMainLooper());
     private final Runnable rescanTask = this::rescan;
     private TextView logText;
-    private TextView scannerScannedText;
+    private LinearLayout foundList;
+    private final ArrayList<String> foundAddresses = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +51,10 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         });
         setUpToolbar();
         logText = findViewById(R.id.logText);
-        scannerScannedText = findViewById(R.id.scannerScannedText);
-        scannerScannedText.setMovementMethod(new ScrollingMovementMethod());
+        foundList = findViewById(R.id.foundList);
         DeviceManager.getInstance().AddDeviceFindListener(this);
     }
+
     @Override
     // Don't keep scanning when the user leaves this screen
     protected void onPause() {
@@ -57,6 +64,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
             stopScan();
         }
     }
+
     private void setUpToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.add_sensor_title);
@@ -68,6 +76,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     public void goBack(View view) {
         finish();
     }
+
     public void scanButtonPressed(View view) {
         if (isScanning) {
             stopScan();
@@ -89,6 +98,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
 
         startScan();
     }
+
     private void startScan() {
         try {
             WitBluetoothManager.getInstance(this).startScan();
@@ -100,6 +110,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
             addToLog("Could not start scanning: " + e.getMessage());
         }
     }
+
     private void rescan() {
         // WitSDK has just stopped by itself, so keep scanning until the user presses Stop Scan
         if (!isScanning) {
@@ -114,6 +125,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
             addToLog("Scanning stopped: " + e.getMessage());
         }
     }
+
     private void stopScan() {
         scanHandler.removeCallbacks(rescanTask);   // cancel the next restart
         try {
@@ -125,11 +137,13 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         updateScanButton();
         addToLog("Scan stopped.");
     }
+
     private boolean bluetoothIsOn() {
         BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
         BluetoothAdapter adapter = bluetoothManager.getAdapter();
         return adapter != null && adapter.isEnabled();
     }
+
     private void updateScanButton() {
         Button scanButton = findViewById(R.id.scanButton);
         if (isScanning) {
@@ -143,17 +157,37 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         addToLog("Connect pressed.");
         // Connecting the ticked sensors comes later
     }
+
     private void addToLog(String message) {
         logText.append(message + "\n");
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         // Stop WitSDK from telling a closed screen about devices
         DeviceManager.getInstance().RemoveDeviceFindListener(this);
     }
+
     @Override
     public void onDeviceFound(BluetoothDevice device) {
-        scannerScannedText.append(device.getName() + " (" + device.getAddress() + ")\n");
+        String name = device.getName();
+        String address = device.getAddress();
+        //SC1: Only name the WIT sensors
+        if (name == null || !name.startsWith("WT")){
+            return;
+        }
+        if (foundAddresses.contains(address)){
+            return;
+        }
+        foundAddresses.add(address);
+        addSensorRow(name,address);
+    }
+    private void addSensorRow(String name,String address){
+        MaterialSwitch row = new MaterialSwitch(this);
+        row.setText(name + "\n" + address);
+        row.setTextSize(16);
+        foundList.addView(row);
+
     }
 }
