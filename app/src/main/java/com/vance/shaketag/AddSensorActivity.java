@@ -14,6 +14,7 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import com.wit.witsdk.Device.DeviceManager;
 import com.wit.witsdk.Device.Interface.DeviceFindListener;
+import android.text.method.ScrollingMovementMethod;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -29,6 +30,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     private final Handler scanHandler = new Handler(Looper.getMainLooper());
     private final Runnable rescanTask = this::rescan;
     private TextView logText;
+    private TextView scannerScannedText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,8 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         });
         setUpToolbar();
         logText = findViewById(R.id.logText);
+        scannerScannedText = findViewById(R.id.scannerScannedText);
+        scannerScannedText.setMovementMethod(new ScrollingMovementMethod());
         DeviceManager.getInstance().AddDeviceFindListener(this);
     }
     @Override
@@ -73,7 +77,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         // SC1 abnormal: Bluetooth access hasn't been allowed yet
         if (!WitBluetoothManager.checkPermissions(this)) {
             WitBluetoothManager.requestPermissions(this);
-            addToLog("Allow Bluetooth access, then press Start Scan again. If no pop-up appears, allow Nearby devices for ShakeTag in Settings.");
+            addToLog("Allow Bluetooth access, then press Start Scan again.");
             return;
         }
 
@@ -150,6 +154,6 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     }
     @Override
     public void onDeviceFound(BluetoothDevice device) {
-        addToLog("Found: " + device.getName() + " (" + device.getAddress() + ")");
+        scannerScannedText.append(device.getName() + " (" + device.getAddress() + ")\n");
     }
 }

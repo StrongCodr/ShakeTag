@@ -62,6 +62,17 @@
         app:layout_constraintTop_toBottomOf="@id/logLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+    <!-- SC1: devices found by the scan (list with ticks comes later) -->
+    <TextView
+        android:id="@+id/scannerScannedText"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_margin="16dp"
+        android:scrollbars="vertical"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/scanButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
