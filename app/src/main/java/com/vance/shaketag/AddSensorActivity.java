@@ -29,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.text.Html;
 
 public class AddSensorActivity extends AppCompatActivity implements DeviceFindListener {
     private boolean isScanning = false;
@@ -185,9 +186,8 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     }
     private void addSensorRow(String name,String address){
         MaterialSwitch row = new MaterialSwitch(this);
-        row.setText(name + "\n" + address);
-        row.setTextSize(16);
+        row.setText(Html.fromHtml(name + "<br><small><font color = 'gray'>"+address+"</font></small>", Html.FROM_HTML_MODE_LEGACY));
+        row.setTextSize(18);
         foundList.addView(row);
-
     }
 }

@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.ShakeTag" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
+
     </style>
 
     <style name="ToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
@@ -9,6 +9,7 @@
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">26sp</item>
     </style>
+
 
     <style name="Theme.ShakeTag" parent="Base.Theme.ShakeTag" />
 </resources>
