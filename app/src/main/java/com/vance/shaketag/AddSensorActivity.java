@@ -39,6 +39,8 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     private TextView logText;
     private LinearLayout foundList;
     private final ArrayList<String> foundAddresses = new ArrayList<>();
+    private static final int MAX_SENSORS = 4;
+    private final ArrayList<MaterialSwitch> sensorSwitches = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,8 +157,45 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     }
 
     public void connectSensors(View view) {
-        addToLog("Connect pressed.");
-        // Connecting the ticked sensors comes later
+        SensorManager sensorManager = SensorManager.getInstance();
+
+        ArrayList<MaterialSwitch> switchedOn = new ArrayList<>();
+        for (MaterialSwitch sensorSwitch : sensorSwitches){
+            if (sensorSwitch.isChecked()) {
+                switchedOn.add(sensorSwitch);
+            }
+        }
+        // SC1 abnormal: Connect pressed with no sensors switched on
+        if (switchedOn.isEmpty()) {
+            addToLog("Switch on at least one sensor first.");
+            return;
+        }
+
+        // SC1 boundary: no more than 4 sensors in total
+        if (sensorManager.getSensors().size() + switchedOn.size() > MAX_SENSORS) {
+            addToLog("You can only have 4 sensors.");
+            return;
+        }
+
+        for (MaterialSwitch sensorSwitch : switchedOn) {
+            String address = (String) sensorSwitch.getTag();
+            String name = "Sensor " + (sensorManager.getSensors().size() + 1);
+            sensorManager.addSensor(new Sensor(address, name));
+            showAsAdded(sensorSwitch, name);
+            addToLog("Added " + name + ".");
+        }
+
+    }
+    private void showAsAdded(MaterialSwitch sensorSwitch, String name) {
+        TextView addedRow = new TextView(this);
+        addedRow.setText(name + " (added)");
+        addedRow.setTextSize(18);
+        addedRow.setTextColor(Color.GRAY);
+
+        int position = foundList.indexOfChild(sensorSwitch);
+        foundList.removeView(sensorSwitch);
+        foundList.addView(addedRow, position);
+        sensorSwitches.remove(sensorSwitch);
     }
 
     private void addToLog(String message) {
@@ -189,5 +228,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         row.setText(Html.fromHtml(name + "<br><small><font color = 'gray'>"+address+"</font></small>", Html.FROM_HTML_MODE_LEGACY));
         row.setTextSize(18);
         foundList.addView(row);
+        row.setTag(address);
+        sensorSwitches.add(row);
     }
 }
