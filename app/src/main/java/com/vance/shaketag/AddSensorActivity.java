@@ -56,6 +56,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         logText = findViewById(R.id.logText);
         foundList = findViewById(R.id.foundList);
         DeviceManager.getInstance().AddDeviceFindListener(this);
+        showSavedSensors();
     }
 
     @Override
@@ -186,16 +187,24 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         }
 
     }
-    private void showAsAdded(MaterialSwitch sensorSwitch, String name) {
+
+    private TextView makeAddedRow(String name) {
         TextView addedRow = new TextView(this);
         addedRow.setText(name + " (added)");
         addedRow.setTextSize(18);
         addedRow.setTextColor(Color.GRAY);
-
+        return addedRow;
+    }
+    private void showAsAdded(MaterialSwitch sensorSwitch, String name) {
         int position = foundList.indexOfChild(sensorSwitch);
         foundList.removeView(sensorSwitch);
-        foundList.addView(addedRow, position);
+        foundList.addView(makeAddedRow(name), position);
         sensorSwitches.remove(sensorSwitch);
+    }
+    private void showSavedSensors() {
+        for (Sensor sensor : SensorManager.getInstance().getSensors()) {
+            foundList.addView(makeAddedRow(sensor.getName()));
+        }
     }
 
     private void addToLog(String message) {
