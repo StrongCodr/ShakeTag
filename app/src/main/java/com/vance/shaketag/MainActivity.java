@@ -4,17 +4,22 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.graphics.Typeface;
+import android.graphics.Color;
 import com.wit.witsdk.Bluetooth.WitBluetoothManager;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.content.ContextCompat;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     private boolean isShakeModeOn = false;
+    private LinearLayout sensorList;
 
 
 
@@ -28,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        sensorList = findViewById(R.id.sensorList);
         askPermissions();
 
     }
@@ -37,6 +43,36 @@ public class MainActivity extends AppCompatActivity {
             WitBluetoothManager.requestPermissions(this);
         }
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showSensors();
+    }
+    private void showSensors(){
+        sensorList.removeAllViews();
+        for (Sensor sensor : SensorManager.getInstance().getSensors()) {
+            TextView sensorRow = new TextView(this);
+            sensorRow.setText(sensor.getName());
+            sensorRow.setTextSize(18);
+            sensorRow.setTypeface(null, Typeface.BOLD);
+            sensorRow.setBackgroundResource(R.drawable.sensor_card);
+            sensorRow.setPadding(40, 40, 40, 80);
+            sensorList.addView(sensorRow);
+            sensorRow.setTextColor(Color.BLACK);
+        }
+
+        TextView noSensorsText = findViewById(R.id.noSensorsText);
+        if (hasSensors()) {
+            noSensorsText.setVisibility(View.GONE);
+        } else {
+            noSensorsText.setVisibility(View.VISIBLE);
+        }
+
+    }
+    private boolean hasSensors(){
+        return !SensorManager.getInstance().getSensors().isEmpty();
+    }
+
 
 
     public void openAddSensorScreen(View view) {
