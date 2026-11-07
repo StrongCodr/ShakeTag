@@ -226,6 +226,9 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         if (name == null || !name.startsWith("WT")){
             return;
         }
+        if (SensorManager.getInstance().hasSensor(address)) {
+            return;
+        }
         if (foundAddresses.contains(address)){
             return;
         }

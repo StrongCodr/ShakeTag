@@ -4,7 +4,7 @@ public class Sensor {
     private final String address;
     private final String name;
 
-    public Sensor(String name, String address){
+    public Sensor(String address, String name){
         this.address = address;
         this.name = name;
     }
