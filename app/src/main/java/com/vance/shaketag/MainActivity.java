@@ -2,6 +2,7 @@ package com.vance.shaketag;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.widget.Button;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -16,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.content.ContextCompat;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.text.Html;
 
 public class MainActivity extends AppCompatActivity {
     private boolean isShakeModeOn = false;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         showSensors();
+        SensorManager.getInstance().setOnChange(this::showSensors);
     }
     private void showSensors(){
         sensorList.removeAllViews();
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             TextView sensorRow = new TextView(this);
             sensorRow.setText(sensor.getName());
             sensorRow.setTextSize(18);
-            sensorRow.setTypeface(null, Typeface.BOLD);
+            sensorRow.setText(Html.fromHtml("<b>" + sensor.getName() + "</b> " + sensor.getStatusText(), Html.FROM_HTML_MODE_LEGACY));
             sensorRow.setBackgroundResource(R.drawable.sensor_card);
             sensorRow.setPadding(40, 40, 40, 80);
             sensorList.addView(sensorRow);
@@ -89,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        SensorManager.getInstance().setOnChange(null);
         // SC4: leaving the menu, leaving the app, or the screen turning off all stop Shake Mode
         isShakeModeOn = false;
         updateShakeButton();
