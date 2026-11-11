@@ -3,16 +3,36 @@ package com.vance.shaketag;
 public class Sensor {
     private final String address;
     private final String name;
+    private Status status;
 
     public Sensor(String address, String name){
         this.address = address;
         this.name = name;
+        this.status = Status.CONNECTING;
     }
     public String getAddress(){
         return address;
     }
     public String getName(){
         return name;
+    }
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+    public String getStatusText() {
+        if (status == Status.CONNECTED){
+            return "connected";
+        } else if (status == Status.RECONNECTING) {
+            return "reconnecting...";
+        } else if (status == Status.DISCONNECTED) {
+            return "disconnected";
+        } else {
+            return "connecting...";
+        }
     }
 }
 
