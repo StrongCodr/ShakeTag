@@ -41,6 +41,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     private final ArrayList<String> foundAddresses = new ArrayList<>();
     private static final int MAX_SENSORS = 4;
     private final ArrayList<MaterialSwitch> sensorSwitches = new ArrayList<>();
+    private final ArrayList<TextView> addedRows = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +59,17 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         DeviceManager.getInstance().AddDeviceFindListener(this);
         showSavedSensors();
     }
+    @Override
+    protected void onResume(){
+        super.onResume();
+        SensorManager.getInstance().setOnChange(this::updateAddedRows);
+    }
 
     @Override
     // Don't keep scanning when the user leaves this screen
     protected void onPause() {
         super.onPause();
+        SensorManager.getInstance().setOnChange(null);
 
         if (isScanning) {
             stopScan();
@@ -181,29 +188,41 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         for (MaterialSwitch sensorSwitch : switchedOn) {
             String address = (String) sensorSwitch.getTag();
             String name = "Sensor " + (sensorManager.getSensors().size() + 1);
-            sensorManager.addSensor(new Sensor(address, name));
-            showAsAdded(sensorSwitch, name);
-            addToLog("Added " + name + ".");
+            Sensor sensor = new Sensor(address, name);
+            sensorManager.addSensor(sensor);
+            sensorManager.connect(sensor, getApplicationContext());
+            showAsAdded(sensorSwitch, sensor);
+            addToLog("Connecting " + name + "...");
         }
 
     }
 
-    private TextView makeAddedRow(String name) {
+    private TextView makeAddedRow(Sensor sensor) {
         TextView addedRow = new TextView(this);
-        addedRow.setText(name + " (added)");
+        addedRow.setText(sensor.getName() + " (" + sensor.getStatusText() + ")");
         addedRow.setTextSize(18);
         addedRow.setTextColor(Color.GRAY);
+        addedRow.setTag(sensor);
+        addedRows.add(addedRow);
         return addedRow;
     }
-    private void showAsAdded(MaterialSwitch sensorSwitch, String name) {
+    private void showAsAdded(MaterialSwitch sensorSwitch, Sensor sensor) {
         int position = foundList.indexOfChild(sensorSwitch);
         foundList.removeView(sensorSwitch);
-        foundList.addView(makeAddedRow(name), position);
+        foundList.addView(makeAddedRow(sensor), position);
         sensorSwitches.remove(sensorSwitch);
     }
+
     private void showSavedSensors() {
         for (Sensor sensor : SensorManager.getInstance().getSensors()) {
-            foundList.addView(makeAddedRow(sensor.getName()));
+            foundList.addView(makeAddedRow(sensor));
+        }
+    }
+
+    private void updateAddedRows() {
+        for (TextView addedRow : addedRows) {
+            Sensor sensor = (Sensor) addedRow.getTag();
+            addedRow.setText(sensor.getName() + " (" + sensor.getStatusText() + ")");
         }
     }
 
@@ -243,4 +262,5 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         row.setTag(address);
         sensorSwitches.add(row);
     }
+
 }
