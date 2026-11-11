@@ -1,5 +1,6 @@
 package com.vance.shaketag;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -42,6 +43,8 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     private static final int MAX_SENSORS = 4;
     private final ArrayList<MaterialSwitch> sensorSwitches = new ArrayList<>();
     private final ArrayList<TextView> addedRows = new ArrayList<>();
+    private static final int RECONNECT_DELAY_MS = 2000;
+    private Context appContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +168,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
     }
 
     public void connectSensors(View view) {
+
         SensorManager sensorManager = SensorManager.getInstance();
 
         ArrayList<MaterialSwitch> switchedOn = new ArrayList<>();

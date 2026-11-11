@@ -15,6 +15,8 @@ public class SensorManager implements DeviceDataListener{
     private final ArrayList<Sensor> sensors = new ArrayList<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private Runnable onChange;
+    private static final int RECONNECT_DELAY_MS = 2000;
+    private Context appContext;
 
 
     private SensorManager(){
@@ -37,6 +39,7 @@ public class SensorManager implements DeviceDataListener{
         this.onChange = onChange;
     }
     public void connect (Sensor sensor, Context context){
+        Context appContext = context;
         BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
         BluetoothDevice device = bluetoothManager.getAdapter().getRemoteDevice(sensor.getAddress());
         DeviceModel deviceModel = new DeviceModel(sensor.getAddress(), device);
@@ -55,15 +58,37 @@ public class SensorManager implements DeviceDataListener{
             return;
         }
         if (connected) {
-            sensor.setStatus(Status.CONNECTED);
+            // SC2: the link is back, it counts as connected once data arrives
+            if (sensor.getStatus() == Status.DISCONNECTED) {
+                sensor.setStatus(Status.RECONNECTING);
+            }
         } else {
+            // SC2: the sensor dropped, so keep trying in the background until it is back
             sensor.setStatus(Status.DISCONNECTED);
+            DeviceManager.getInstance().GetDevice(address).CloseDevice();
+            mainHandler.postDelayed(() -> reconnect(sensor), RECONNECT_DELAY_MS);
         }
         tellScreen();
     }
 
+    private void reconnect(Sensor sensor) {
+        DeviceModel deviceModel = DeviceManager.getInstance().GetDevice(sensor.getAddress());
+        try {
+            deviceModel.Connect(appContext);
+        } catch (Exception e) {
+            sensor.setStatus(Status.DISCONNECTED);
+            tellScreen();
+        }
+    }
+
     @Override
     public void OnReceive(String address, String data) {
+        Sensor sensor = getSensor(address);
+        if (sensor == null || sensor.getStatus() == Status.CONNECTED) {
+            return;
+        }
+        sensor.setStatus(Status.CONNECTED);
+        tellScreen();
     }
     private void tellScreen(){
         if (onChange != null){
