@@ -2,8 +2,12 @@ package com.vance.shaketag;
 //one sensor the user has added
 public class Sensor {
     private final String address;
-    private final String name;
+    private  String name;
     private Status status;
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public Sensor(String address, String name){
         this.address = address;

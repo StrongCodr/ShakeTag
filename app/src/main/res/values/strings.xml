@@ -11,4 +11,7 @@
     <string name="added">Added</string>
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>
+    <string name="rename_title">Rename Sensor</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
 </resources>

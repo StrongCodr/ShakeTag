@@ -19,6 +19,7 @@ public class SensorManager implements DeviceDataListener{
     private Context appContext;
 
 
+
     private SensorManager(){
         DeviceManager.getInstance().AddDeviceListener(this);
     }

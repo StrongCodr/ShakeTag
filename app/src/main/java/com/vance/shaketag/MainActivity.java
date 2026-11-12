@@ -1,6 +1,9 @@
 package com.vance.shaketag;
 
 import android.content.Intent;
+import android.view.MenuItem;
+import android.widget.EditText;
+import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Html;
 import android.widget.Button;
@@ -24,6 +27,7 @@ import android.view.Gravity;
 public class MainActivity extends AppCompatActivity {
     private boolean isShakeModeOn = false;
     private LinearLayout sensorList;
+
 
 
 
@@ -79,8 +83,15 @@ public class MainActivity extends AppCompatActivity {
     private void showSensorMenu(View card, Sensor sensor) {
         PopupMenu menu = new PopupMenu(this, card);
         menu.setGravity(Gravity.END);
-        menu.getMenu().add(R.string.rename);
-        menu.getMenu().add(R.string.delete);
+        MenuItem renameOption = menu.getMenu().add(R.string.rename);
+        MenuItem deleteOption = menu.getMenu().add(R.string.delete);
+
+        menu.setOnMenuItemClickListener(item -> {
+            if (item == renameOption) {
+                showRenameBox(sensor);
+            }
+            return true;
+        });
         menu.show();
     }
     private boolean hasSensors(){
@@ -116,5 +127,21 @@ public class MainActivity extends AppCompatActivity {
             shakeButton.setText(R.string.shake_mode_off);
         }
 
+    }
+
+    private void showRenameBox(Sensor sensor) {
+        EditText nameInput = new EditText(this);
+        nameInput.setText(sensor.getName());
+        nameInput.setSingleLine();
+
+        AlertDialog.Builder renameBox = new AlertDialog.Builder(this);
+        renameBox.setTitle(R.string.rename_title);
+        renameBox.setView(nameInput);
+        renameBox.setPositiveButton(R.string.save, (box, button) -> {
+            sensor.setName(nameInput.getText().toString());
+            showSensors();
+        });
+        renameBox.setNegativeButton(R.string.cancel, null);
+        renameBox.show();
     }
 }
