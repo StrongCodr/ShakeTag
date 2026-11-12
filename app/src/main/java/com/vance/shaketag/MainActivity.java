@@ -18,6 +18,8 @@ import androidx.core.content.ContextCompat;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.text.Html;
+import android.widget.PopupMenu;
+import android.view.Gravity;
 
 public class MainActivity extends AppCompatActivity {
     private boolean isShakeModeOn = false;
@@ -60,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
             sensorRow.setText(Html.fromHtml("<b>" + sensor.getName() + "</b> " + sensor.getStatusText(), Html.FROM_HTML_MODE_LEGACY));
             sensorRow.setBackgroundResource(R.drawable.sensor_card);
             sensorRow.setPadding(40, 40, 40, 80);
+            sensorRow.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.outline_keyboard_arrow_down_24, 0);
+            sensorRow.setOnClickListener(view -> showSensorMenu(view, sensor));
             sensorList.addView(sensorRow);
             sensorRow.setTextColor(Color.BLACK);
         }
@@ -71,6 +75,13 @@ public class MainActivity extends AppCompatActivity {
             noSensorsText.setVisibility(View.VISIBLE);
         }
 
+    }
+    private void showSensorMenu(View card, Sensor sensor) {
+        PopupMenu menu = new PopupMenu(this, card);
+        menu.setGravity(Gravity.END);
+        menu.getMenu().add(R.string.rename);
+        menu.getMenu().add(R.string.delete);
+        menu.show();
     }
     private boolean hasSensors(){
         return !SensorManager.getInstance().getSensors().isEmpty();
