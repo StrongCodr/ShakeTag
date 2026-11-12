@@ -17,7 +17,50 @@ public class SensorManager implements DeviceDataListener{
     private Runnable onChange;
     private static final int RECONNECT_DELAY_MS = 2000;
     private Context appContext;
+    private static final int MAX_LENGTH_NAME = 20;
 
+
+    public String renameSensor(Sensor sensor, String newName){
+        String name = newName.trim();
+        String error = checkName(sensor, name);
+        if (error == null){
+            sensor.setName(name);
+        }
+        return error;
+    }
+    private String checkName(Sensor sensor, String name){
+        if (name.isEmpty()){
+            return "name cannot be empty.";
+        }
+        if (name.length() >= MAX_LENGTH_NAME){
+            return "Name cannot be longer than 20 characters";
+        }
+        if (isDefaultName(name)) {
+            return "Names like \"Sensor 3\" are kept for new sensors.";
+        }
+        for (Sensor other : sensors) {
+            if (other != sensor && other.getName().equals(name)) {
+                return "Another sensor already has that name.";
+            }
+        }
+        return null;
+    }
+
+    private boolean isDefaultName(String name){
+        if (!name.startsWith("Sensor ")) {
+            return false;
+        }
+        String number = name.substring(7);
+        if (number.isEmpty()) {
+            return false;
+        }
+        for (char letter : number.toCharArray()) {
+            if (!Character.isDigit(letter)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     private SensorManager(){

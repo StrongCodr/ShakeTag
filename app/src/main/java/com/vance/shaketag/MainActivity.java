@@ -137,11 +137,19 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder renameBox = new AlertDialog.Builder(this);
         renameBox.setTitle(R.string.rename_title);
         renameBox.setView(nameInput);
-        renameBox.setPositiveButton(R.string.save, (box, button) -> {
-            sensor.setName(nameInput.getText().toString());
-            showSensors();
-        });
+        renameBox.setPositiveButton(R.string.save, null);
         renameBox.setNegativeButton(R.string.cancel, null);
-        renameBox.show();
+        AlertDialog box = renameBox.show();
+
+        //SC6: only close the box when the name is accepted
+        box.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+            String error = SensorManager.getInstance().renameSensor(sensor, nameInput.getText().toString());
+            if (error == null) {
+                showSensors();
+                box.dismiss();
+            } else {
+                nameInput.setError(error);
+            }
+        });
     }
 }
