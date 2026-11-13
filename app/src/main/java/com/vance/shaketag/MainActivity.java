@@ -23,10 +23,19 @@ import android.widget.TextView;
 import android.text.Html;
 import android.widget.PopupMenu;
 import android.view.Gravity;
+import android.content.res.ColorStateList;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private boolean isShakeModeOn = false;
     private LinearLayout sensorList;
+    private static final int SHAKE_REFRESH_MS = 200;
+    private final Handler shakeHandler = new Handler(Looper.getMainLooper());
+    private final Runnable shakeTask = this::updateShakeHighlights;
+    private final ArrayList<TextView> sensorCards = new ArrayList<>();
 
 
 
@@ -58,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         SensorManager.getInstance().setOnChange(this::showSensors);
     }
     private void showSensors(){
+        sensorCards.clear();
         sensorList.removeAllViews();
         for (Sensor sensor : SensorManager.getInstance().getSensors()) {
             TextView sensorRow = new TextView(this);
@@ -68,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
             sensorRow.setPadding(40, 40, 40, 80);
             sensorRow.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.outline_keyboard_arrow_down_24, 0);
             sensorRow.setOnClickListener(view -> showSensorMenu(view, sensor));
+            sensorRow.setTag(sensor);
+            sensorCards.add(sensorRow);
             sensorList.addView(sensorRow);
             sensorRow.setTextColor(Color.BLACK);
         }
@@ -79,6 +91,20 @@ public class MainActivity extends AppCompatActivity {
             noSensorsText.setVisibility(View.VISIBLE);
         }
 
+    }
+    private void updateShakeHighlights() {
+        for (TextView card : sensorCards) {
+            Sensor sensor = (Sensor) card.getTag();
+            if (isShakeModeOn && sensor.isShaken()) {
+                card.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.shaken_yellow)));
+            } else {
+                card.setBackgroundTintList(null);
+            }
+        }
+
+        if (isShakeModeOn) {
+            shakeHandler.postDelayed(shakeTask, SHAKE_REFRESH_MS);
+        }
     }
     private void showSensorMenu(View card, Sensor sensor) {
         PopupMenu menu = new PopupMenu(this, card);
@@ -119,10 +145,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(goToAddSensor);
     }
     public void toggleShakeMode(View view) {
-        // TODO (SC3, SC4): if there are no sensors, show "No sensors registered" and keep Shake Mode off
         isShakeModeOn = !isShakeModeOn;
         updateShakeButton();
-        // TODO (SC3): tell SensorController to start or stop highlighting shaken sensors yellow
+        shakeHandler.removeCallbacks(shakeTask);
+        updateShakeHighlights();
     }
 
     @Override
@@ -132,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
         // SC4: leaving the menu, leaving the app, or the screen turning off all stop Shake Mode
         isShakeModeOn = false;
         updateShakeButton();
+        shakeHandler.removeCallbacks(shakeTask);
+        updateShakeHighlights();
     }
     private void updateShakeButton() {
         Button shakeButton = findViewById(R.id.shakeButton);
