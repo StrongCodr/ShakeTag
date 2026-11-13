@@ -123,6 +123,9 @@ public class SensorManager implements DeviceDataListener{
             sensor.setStatus(Status.DISCONNECTED);
             tellScreen();
         }
+        if (!sensors.contains(sensor)) {
+            return;
+        }
     }
 
     @Override
@@ -153,4 +156,29 @@ public class SensorManager implements DeviceDataListener{
     public ArrayList<Sensor> getSensors() {
         return sensors;
     }
+    // SC7: forgets the sensor, then moves every "Sensor n" above it down by one
+    public void deleteSensor(Sensor sensor) {
+        sensors.remove(sensor);
+
+        DeviceModel deviceModel = DeviceManager.getInstance().GetDevice(sensor.getAddress());
+        if (deviceModel != null) {
+            deviceModel.CloseDevice();
+            DeviceManager.getInstance().RemoveDevice(sensor.getAddress());
+        }
+
+        if (isDefaultName(sensor.getName())) {
+            int deletedNumber = getNumber(sensor.getName());
+            for (Sensor other : sensors) {
+                if (isDefaultName(other.getName()) && getNumber(other.getName()) > deletedNumber) {
+                    other.setName("Sensor " + (getNumber(other.getName()) - 1));
+                }
+            }
+        }
+    }
+
+    // The number in a name like "Sensor 3"
+    private int getNumber(String defaultName) {
+        return Integer.parseInt(defaultName.substring(7));
+    }
+
 }

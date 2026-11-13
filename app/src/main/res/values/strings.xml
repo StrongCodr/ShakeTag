@@ -14,4 +14,5 @@
     <string name="rename_title">Rename Sensor</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="delete_message">This sensor will be forgotten. You can add it again from Add Sensor.</string>
 </resources>

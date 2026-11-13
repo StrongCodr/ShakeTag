@@ -89,10 +89,24 @@ public class MainActivity extends AppCompatActivity {
         menu.setOnMenuItemClickListener(item -> {
             if (item == renameOption) {
                 showRenameBox(sensor);
+            } else if (item == deleteOption){
+                showDeleteBox(sensor);
             }
             return true;
         });
         menu.show();
+
+    }
+    private void showDeleteBox(Sensor sensor) {
+        AlertDialog.Builder deleteBox = new AlertDialog.Builder(this);
+        deleteBox.setTitle("Delete " + sensor.getName() + "?");
+        deleteBox.setMessage(R.string.delete_message);
+        deleteBox.setPositiveButton(R.string.delete, (box, button) -> {
+            SensorManager.getInstance().deleteSensor(sensor);
+            showSensors();
+        });
+        deleteBox.setNegativeButton(R.string.cancel, null);
+        deleteBox.show();
     }
     private boolean hasSensors(){
         return !SensorManager.getInstance().getSensors().isEmpty();
@@ -152,4 +166,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 }
