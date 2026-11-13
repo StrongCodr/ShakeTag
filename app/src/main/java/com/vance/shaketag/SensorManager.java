@@ -151,6 +151,16 @@ public class SensorManager implements DeviceDataListener{
             sensor.markShaken();
         }
     }
+    // SC5: one above the highest "Sensor n", so renamed sensors don't count
+    public String nextDefaultName() {
+        int highest = 0;
+        for (Sensor sensor : sensors) {
+            if (isDefaultName(sensor.getName()) && getNumber(sensor.getName()) > highest) {
+                highest = getNumber(sensor.getName());
+            }
+        }
+        return "Sensor " + (highest + 1);
+    }
     private void tellScreen(){
         if (onChange != null){
             mainHandler.post(onChange);
@@ -165,7 +175,7 @@ public class SensorManager implements DeviceDataListener{
         if (hasSensor(sensor.getAddress())) {
             return;
         }
-        sensors.add(sensor);
+        sensors.add(0, sensor);
     }
     public ArrayList<Sensor> getSensors() {
         return sensors;
