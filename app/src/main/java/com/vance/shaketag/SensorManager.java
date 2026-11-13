@@ -18,6 +18,7 @@ public class SensorManager implements DeviceDataListener{
     private static final int RECONNECT_DELAY_MS = 2000;
     private Context appContext;
     private static final int MAX_LENGTH_NAME = 20;
+    private static final double SHAKE_THRESHOLD_G = 0.5;
 
 
     public String renameSensor(Sensor sensor, String newName){
@@ -131,11 +132,24 @@ public class SensorManager implements DeviceDataListener{
     @Override
     public void OnReceive(String address, String data) {
         Sensor sensor = getSensor(address);
-        if (sensor == null || sensor.getStatus() == Status.CONNECTED) {
+        if (sensor == null) {
             return;
         }
-        sensor.setStatus(Status.CONNECTED);
-        tellScreen();
+
+        if (sensor.getStatus() != Status.CONNECTED){
+            sensor.setStatus(Status.CONNECTED);
+            tellScreen();
+        }
+        // SC3: a still sensor reads about 1 g (gravity), so anything far from 1 g is a shake
+        DeviceModel deviceModel = DeviceManager.getInstance().GetDevice(address);
+        double accX = deviceModel.GetData("AccX");
+        double accY = deviceModel.GetData("AccY");
+        double accZ = deviceModel.GetData("AccZ");
+        double strength = Math.sqrt(accX * accX + accY * accY + accZ * accZ);
+
+        if (Math.abs(strength - 1) > SHAKE_THRESHOLD_G) {
+            sensor.markShaken();
+        }
     }
     private void tellScreen(){
         if (onChange != null){

@@ -4,6 +4,8 @@ public class Sensor {
     private final String address;
     private  String name;
     private Status status;
+    private static final int SHAKE_GLOW_MS = 500;
+    private long lastShakeTime = 0;
 
     public void setName(String name) {
         this.name = name;
@@ -37,6 +39,14 @@ public class Sensor {
         } else {
             return "connecting...";
         }
+    }
+    public void markShaken() {
+        lastShakeTime = System.currentTimeMillis();
+    }
+
+    // SC3: stays highlighted until half a second after the last shake
+    public boolean isShaken() {
+        return System.currentTimeMillis() - lastShakeTime < SHAKE_GLOW_MS;
     }
 }
 
