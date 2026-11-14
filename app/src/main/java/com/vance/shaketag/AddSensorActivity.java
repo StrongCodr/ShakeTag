@@ -192,7 +192,6 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         for (MaterialSwitch sensorSwitch : switchedOn) {
             String address = (String) sensorSwitch.getTag();
             String name = sensorManager.nextDefaultName();
-            name = "Sensor " + (sensorManager.getSensors().size() + 1);
             Sensor sensor = new Sensor(address, name);
             sensorManager.addSensor(sensor);
             sensorManager.connect(sensor, getApplicationContext());

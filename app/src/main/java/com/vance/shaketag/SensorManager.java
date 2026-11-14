@@ -9,6 +9,11 @@ import android.os.Looper;
 import com.wit.witsdk.Device.DeviceManager;
 import com.wit.witsdk.Device.DeviceModel;
 import com.wit.witsdk.Device.Interface.DeviceDataListener;
+import android.util.Log;
+import android.annotation.SuppressLint;
+import androidx.core.app.NotificationChannelCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 public class SensorManager implements DeviceDataListener{
     private static final SensorManager instance = new SensorManager();
@@ -19,6 +24,7 @@ public class SensorManager implements DeviceDataListener{
     private Context appContext;
     private static final int MAX_LENGTH_NAME = 20;
     private static final double SHAKE_THRESHOLD_G = 0.5;
+    private static final String ALERT_CHANNEL_ID = "sensor_alerts";
 
 
     public String renameSensor(Sensor sensor, String newName){
@@ -33,7 +39,7 @@ public class SensorManager implements DeviceDataListener{
         if (name.isEmpty()){
             return "name cannot be empty.";
         }
-        if (name.length() >= MAX_LENGTH_NAME){
+        if (name.length() > MAX_LENGTH_NAME){
             return "Name cannot be longer than 20 characters";
         }
         if (isDefaultName(name)) {
@@ -84,7 +90,7 @@ public class SensorManager implements DeviceDataListener{
         this.onChange = onChange;
     }
     public void connect (Sensor sensor, Context context){
-        Context appContext = context;
+        appContext = context;
         BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
         BluetoothDevice device = bluetoothManager.getAdapter().getRemoteDevice(sensor.getAddress());
         DeviceModel deviceModel = new DeviceModel(sensor.getAddress(), device);
@@ -102,12 +108,18 @@ public class SensorManager implements DeviceDataListener{
         if (sensor == null) {
             return;
         }
+        Status previousStatus = sensor.getStatus();
+
         if (connected) {
             // SC2: the link is back, it counts as connected once data arrives
-            if (sensor.getStatus() == Status.DISCONNECTED) {
+            if (previousStatus == Status.DISCONNECTED) {
                 sensor.setStatus(Status.RECONNECTING);
             }
         } else {
+            // SC9: only alert when a working sensor drops, not on every failed retry
+            if (previousStatus == Status.CONNECTED) {
+                sendDisconnectAlert(sensor);
+            }
             // SC2: the sensor dropped, so keep trying in the background until it is back
             sensor.setStatus(Status.DISCONNECTED);
             DeviceManager.getInstance().GetDevice(address).CloseDevice();
@@ -115,17 +127,16 @@ public class SensorManager implements DeviceDataListener{
         }
         tellScreen();
     }
-
     private void reconnect(Sensor sensor) {
+        if (!sensors.contains(sensor)) {
+            return;
+        }
         DeviceModel deviceModel = DeviceManager.getInstance().GetDevice(sensor.getAddress());
         try {
             deviceModel.Connect(appContext);
         } catch (Exception e) {
             sensor.setStatus(Status.DISCONNECTED);
             tellScreen();
-        }
-        if (!sensors.contains(sensor)) {
-            return;
         }
     }
 
@@ -203,6 +214,27 @@ public class SensorManager implements DeviceDataListener{
     // The number in a name like "Sensor 3"
     private int getNumber(String defaultName) {
         return Integer.parseInt(defaultName.substring(7));
+    }
+    // SC9: tells the user a sensor has dropped, in case they are not looking at the screen
+    @SuppressLint("MissingPermission")   // checked with areNotificationsEnabled()
+    private void sendDisconnectAlert(Sensor sensor) {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(appContext);
+        if (!notificationManager.areNotificationsEnabled()) {
+            return;
+        }
+
+        NotificationChannelCompat.Builder channel = new NotificationChannelCompat.Builder(ALERT_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_HIGH);
+        channel.setName("Sensor alerts");
+        notificationManager.createNotificationChannel(channel.build());
+
+        NotificationCompat.Builder alert = new NotificationCompat.Builder(appContext, ALERT_CHANNEL_ID);
+        alert.setSmallIcon(R.drawable.outline_bluetooth_disabled_24);
+        alert.setContentTitle(sensor.getName() + " disconnected");
+        alert.setContentText("Check it is switched on and in range.");
+        alert.setPriority(NotificationCompat.PRIORITY_HIGH);
+        alert.setDefaults(NotificationCompat.DEFAULT_ALL);
+        alert.setAutoCancel(true);
+        notificationManager.notify(sensor.getAddress().hashCode(), alert.build());
     }
 
 }

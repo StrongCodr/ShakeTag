@@ -1,6 +1,9 @@
 package com.vance.shaketag;
 
 import android.content.Intent;
+import android.Manifest;
+import android.os.Build;
+import java.util.ArrayList;
 import android.view.MenuItem;
 import android.widget.EditText;
 import androidx.appcompat.app.AlertDialog;
@@ -55,10 +58,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void askPermissions() {
-        // Ask for Bluetooth and location as soon as the app opens
-        if (!WitBluetoothManager.checkPermissions(this)) {
-            WitBluetoothManager.requestPermissions(this);
+        // Ask for everything the app needs as soon as it opens, in one request
+        ArrayList<String> permissions = new ArrayList<>();
+        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions.add(Manifest.permission.BLUETOOTH_SCAN);
+            permissions.add(Manifest.permission.BLUETOOTH_CONNECT);
         }
+        // SC9: Android 13 and newer need permission before showing notifications
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS);
+        }
+        requestPermissions(permissions.toArray(new String[0]), 1);
     }
     @Override
     protected void onResume() {
