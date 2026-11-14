@@ -1,6 +1,12 @@
 package com.vance.shaketag;
 
 import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -25,6 +31,7 @@ public class SensorManager implements DeviceDataListener{
     private static final int MAX_LENGTH_NAME = 20;
     private static final double SHAKE_THRESHOLD_G = 0.5;
     private static final String ALERT_CHANNEL_ID = "sensor_alerts";
+    private static final String SAVE_FILE = "sensors.json";
 
 
     public String renameSensor(Sensor sensor, String newName){
@@ -32,6 +39,7 @@ public class SensorManager implements DeviceDataListener{
         String error = checkName(sensor, name);
         if (error == null){
             sensor.setName(name);
+            saveSensors();
         }
         return error;
     }
@@ -100,6 +108,30 @@ public class SensorManager implements DeviceDataListener{
         } catch (Exception e) {
             sensor.setStatus(Status.DISCONNECTED);
             tellScreen();
+        }
+    }
+    // SC8: brings back the saved sensors with their names and reconnects them
+    public void loadSensors(Context context) {
+        appContext = context;
+        if (!sensors.isEmpty()) {
+            return;
+        }
+        File saveFile = new File(appContext.getFilesDir(), SAVE_FILE);
+        if (!saveFile.exists()) {
+            return;
+        }
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(saveFile));
+            JSONArray sensorArray = new JSONArray(reader.readLine());
+            reader.close();
+            for (int i = 0; i < sensorArray.length(); i++) {
+                JSONObject sensorObject = sensorArray.getJSONObject(i);
+                Sensor sensor = new Sensor(sensorObject.getString("address"), sensorObject.getString("name"));
+                sensors.add(sensor);
+                connect(sensor, appContext);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     @Override
@@ -187,6 +219,7 @@ public class SensorManager implements DeviceDataListener{
             return;
         }
         sensors.add(0, sensor);
+        saveSensors();
     }
     public ArrayList<Sensor> getSensors() {
         return sensors;
@@ -208,6 +241,23 @@ public class SensorManager implements DeviceDataListener{
                     other.setName("Sensor " + (getNumber(other.getName()) - 1));
                 }
             }
+        }
+    }
+    // SC8: saves every sensor so they come back after the app is closed
+    private void saveSensors() {
+        try {
+            JSONArray sensorArray = new JSONArray();
+            for (Sensor sensor : sensors) {
+                JSONObject sensorObject = new JSONObject();
+                sensorObject.put("address", sensor.getAddress());
+                sensorObject.put("name", sensor.getName());
+                sensorArray.put(sensorObject);
+            }
+            FileWriter writer = new FileWriter(new File(appContext.getFilesDir(), SAVE_FILE));
+            writer.write(sensorArray.toString());
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

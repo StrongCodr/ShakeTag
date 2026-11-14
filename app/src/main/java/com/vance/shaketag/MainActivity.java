@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         });
         sensorList = findViewById(R.id.sensorList);
         askPermissions();
-
+        SensorManager.getInstance().loadSensors(getApplicationContext());
     }
     private void askPermissions() {
         // Ask for everything the app needs as soon as it opens, in one request
