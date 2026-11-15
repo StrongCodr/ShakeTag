@@ -211,9 +211,9 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         return addedRow;
     }
     private void showAsAdded(MaterialSwitch sensorSwitch, Sensor sensor) {
-        int position = foundList.indexOfChild(sensorSwitch);
         foundList.removeView(sensorSwitch);
-        foundList.addView(makeAddedRow(sensor), position);
+        // The newest sensor goes on top, the same as the Main Menu
+        foundList.addView(makeAddedRow(sensor), 0);
         sensorSwitches.remove(sensorSwitch);
     }
 
