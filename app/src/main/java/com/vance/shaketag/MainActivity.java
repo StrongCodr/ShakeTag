@@ -32,6 +32,8 @@ import android.os.Looper;
 import android.widget.Toast;
 import java.util.ArrayList;
 
+//Excerpt 1: The class declarations of MainActivity, AddSensorActivity, and SensorManager.
+//MainActivity.java: the Main Menu
 public class MainActivity extends AppCompatActivity {
     private boolean isShakeModeOn = false;
     private LinearLayout sensorList;
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         }
         requestPermissions(permissions.toArray(new String[0]), 1);
     }
+    //MainActivity.java
     @Override
     protected void onResume() {
         super.onResume();
@@ -103,6 +106,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+    // Excerpt 11 (SC3, Algorithm 4): the updateShakeHighlights method in MainActivity
+    // SC3: runs every 200 ms while Shake Mode is on
+
     private void updateShakeHighlights() {
         for (TextView card : sensorCards) {
             Sensor sensor = (Sensor) card.getTag();
@@ -155,9 +161,12 @@ public class MainActivity extends AppCompatActivity {
         Intent goToAddSensor = new Intent(this, AddSensorActivity.class);
         startActivity(goToAddSensor);
     }
+    // Excerpt 12 (SC4, Algorithm 4): the toggleShakeMode and onPause methods in MainActivity
+    // SC4: the Shake Mode button
     public void toggleShakeMode(View view) {
         isShakeModeOn = !isShakeModeOn;
         updateShakeButton();
+
         shakeHandler.removeCallbacks(shakeTask);
         updateShakeHighlights();
     }
@@ -194,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         renameBox.setNegativeButton(R.string.cancel, null);
         AlertDialog box = renameBox.show();
 
+        // MainActivity.java, in the showRenameBox method
         //SC6: only close the box when the name is accepted
         box.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
             String error = SensorManager.getInstance().renameSensor(sensor, nameInput.getText().toString());

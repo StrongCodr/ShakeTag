@@ -4,6 +4,7 @@ public class Sensor {
     private final String address;
     private  String name;
     private Status status;
+    //sensors.java
     private static final int SHAKE_GLOW_MS = 500;
     private long lastShakeTime = 0;
 

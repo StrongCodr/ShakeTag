@@ -32,6 +32,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import android.text.Html;
 
+
+//AddSensorActivity.java: the Add Sensor Menu
+// DeviceFindListener: the SDK calls onDeviceFound in this class
 public class AddSensorActivity extends AppCompatActivity implements DeviceFindListener {
     private boolean isScanning = false;
     private static final int SCAN_TIME_MS = 10000;   // WitSDK stops scanning by itself after 10 seconds
@@ -62,6 +65,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         DeviceManager.getInstance().AddDeviceFindListener(this);
         showSavedSensors();
     }
+    // AddSensorActivity.java
     @Override
     protected void onResume(){
         super.onResume();
@@ -124,7 +128,8 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
             addToLog("Could not start scanning: " + e.getMessage());
         }
     }
-
+    // Excerpt 2 (SC1, Algorithm 1 (a)): the rescan method in AddSensorActivity
+    // runs 10 seconds after the scan starts, and again every 10 seconds
     private void rescan() {
         // WitSDK has just stopped by itself, so keep scanning until the user presses Stop Scan
         if (!isScanning) {
@@ -166,7 +171,8 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
             scanButton.setText(R.string.start_scan);
         }
     }
-
+    // Excerpt 4 (SC1, Algorithm 1 (c)): the connectSensors method in AddSensorActivity
+    // SC1: the Connect button
     public void connectSensors(View view) {
 
         SensorManager sensorManager = SensorManager.getInstance();
@@ -193,12 +199,12 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
             String address = (String) sensorSwitch.getTag();
             String name = sensorManager.nextDefaultName();
             Sensor sensor = new Sensor(address, name);
+            // goes on top of the list and is saved (Excerpt 5)
             sensorManager.addSensor(sensor);
             sensorManager.connect(sensor, getApplicationContext());
             showAsAdded(sensorSwitch, sensor);
             addToLog("Connecting " + name + "...");
         }
-
     }
 
     private TextView makeAddedRow(Sensor sensor) {
@@ -241,6 +247,8 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         DeviceManager.getInstance().RemoveDeviceFindListener(this);
     }
 
+    // Excerpt 3 (SC1, Algorithm 1 (b)): the onDeviceFound method in AddSensorActivity
+    // the SDK calls this for every Bluetooth device the scan finds
     @Override
     public void onDeviceFound(BluetoothDevice device) {
         String name = device.getName();
@@ -249,6 +257,7 @@ public class AddSensorActivity extends AppCompatActivity implements DeviceFindLi
         if (name == null || !name.startsWith("WT")){
             return;
         }
+        // already added, so it is already shown greyed out
         if (SensorManager.getInstance().hasSensor(address)) {
             return;
         }
