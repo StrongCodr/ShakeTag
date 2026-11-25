@@ -40,7 +40,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <!-- TODO (SC1): list of discovered WitMotion sensors goes here, between the buttons and the log -->
 
     <TextView
         android:id="@+id/logLabel"
